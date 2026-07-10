@@ -125,23 +125,28 @@
       return;
     }
 
-    // If using Formspree, the form will submit normally.
-    // For demo / no-backend mode, prevent default and show success.
-    // Remove the next block when using a real Formspree endpoint.
     e.preventDefault();
-    form.style.display = 'none';
-    formSuccess.removeAttribute('hidden');
+    submitBtn.disabled = true;
+    submitBtn.querySelector('span').textContent = 'Submitting...';
 
-    /*
-      ========================================
-      FORMSPREE INTEGRATION NOTE
-      ========================================
-      When you have a real Formspree endpoint,
-      remove the e.preventDefault() and the
-      success message block above.
-      The form will POST to Formspree natively.
-      ========================================
-    */
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    }).then(function (response) {
+      if (response.ok) {
+        form.style.display = 'none';
+        formSuccess.removeAttribute('hidden');
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.querySelector('span').textContent = 'Request Free Trial';
+        showError(emailError, 'Something went wrong. Please try again.');
+      }
+    }).catch(function () {
+      submitBtn.disabled = false;
+      submitBtn.querySelector('span').textContent = 'Request Free Trial';
+      showError(emailError, 'Network error. Please try again.');
+    });
   });
 
   // ---- Smooth Scroll for all anchor links ----
